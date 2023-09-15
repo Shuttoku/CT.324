@@ -1,0 +1,221 @@
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CT.324 - Looking Page</title>
+  <!-- Add Bootstrap CSS (CDN or local) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+  <link rel="stylesheet" href="css/index.css" />
+  <style>
+    /* Styles for the switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+
+    body {
+      background-color: black;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background-color: #2196f3;
+    }
+
+    input:focus+.slider {
+      box-shadow: 0 0 1px #2196f3;
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(26px);
+    }
+
+    /* Hide the input */
+    input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    h1 {
+      color: #ffffff;
+    }
+
+    button{
+      height: 40px;
+      width: 100px;
+      background-color: #ffffff00;
+      border: 1px solid white;
+      color: #ffffff;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    button:hover{
+      height: 40px;
+      width: 100px;
+      background-color: #ffffff;
+      border: 1px solid rgb(0, 0, 0);
+      color: #000000;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+h3{
+  color: #ffffff;
+  font-weight: bold;
+}
+h5{
+  color: #ffffff;
+}
+  </style>
+</head>
+
+<body>
+  <br />
+  <br />
+  <center>
+    <h1>Turn the lights on and off.</h1>
+    <br />
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+    <script>
+      // Create a WebSocket connection to the server
+      const socket = io.connect(
+        "http://" + document.domain + ":" + location.port
+      );
+
+      socket.on("connect", function () {
+        console.log("Connected to server via WebSocket");
+      });
+
+      socket.on("mqtt_data", function (data) {
+        // Update the MQTT data in real-time
+        document.getElementById(
+          "MqttData"
+        ).textContent = `Sensor: ${data.Sensor}`;
+      });
+    </script>
+
+    <br />
+  </center>
+  <br />
+  <hr />
+  <br />
+  <center>
+    <label class="switch">
+      <button class="offset" type="checkbox"  id="LedSwitch" onclick="publishData()">On</button>
+      <p style="display: none;" id="ledstate">led</p>
+  </center>
+<div class="container" style="margin-top: 20px; margin-bottom: 100px;">
+  <h3>
+    การส่งข้อมูลอนุกรมผ่านport UART
+  </h3>
+  <h5>
+    &nbsp; &nbsp; &nbsp; UART หรือชื่อเต็ม Universal Asynchronous Receiver and Transmitter เป็นหนึ่งในโปโตคอลสื่อสารข้อมูลผ่านพอร์ตอนุกรมแบบอะซิงโครนัส (asynchronous serial communication) ระหว่างอุปกรณ์ต่าง ๆ ซึ่งนิยมใช้เป็นการสื่อสารระหว่างไมโครคอนโทรลเลอร์ด้วยกัน การทำงานแบบอะซิงโครนัสหมายความว่าจะไม่มีสัญญาณนาฬิกา (clock signal) ส่งออกมาจากตัวส่ง(Transmitting UART) เป็นแพ็กเกต หรือจังหวะไปที่ตัวรับ(Receives UART) แทน ที่สำคัญความเร็วของการรับ และ ส่ง ต้องเท่ากันทั้งสองฝั่งด้วย ทำให้ส่งข้อมูลได้มากและรวดเร็วจึงเป็นที่นิยมอย่างกว้างขวางในโรงงานอุตสาหกรรม ตัวอย่างการส่งข้อมูลลักษณะนี้เช่น I2C, I2S หรือ SPI เป็นต้น
+  
+    หลักการทำงานคือ จะมี UART 2 ตัว สื่อสารโดยตรงกัน การส่งสัญญาณ UART จะแปลงข้อมูลแบบขนานจากอุปกรณ์ควบคุมเช่น CPU ไปเป็นรูปแบบอนุกรมส่งไปเป็นแบบอนุกรมไปยัง UART ที่ได้รับ จากนั้นจะแปลงข้อมูลอนุกรมกลับไปเป็นข้อมูลแบบขนานสำหรับอุปกรณ์ที่ได้รับ ต้องใช้สายสองเส้นไคว้กันเท่านั้นในการส่งข้อมูลระหว่างสอง UART ข้อมูลไหลจากพิน Tx ของ UART ที่ส่งไปยัง Rx pin ของ UART ตัวที่รับ:
+   //มีรูป
+   
+   ซึ่งระดับแรงดันไฟฟ้าของสัญญาณที่สื่อสารแบบ UART ได้แก่ <br/>
+   (-)TTL<br/>
+   (-)RS232<br/>
+   <br/><br/>
+    ข้อดีและข้อเสียของUART<br/>
+   โปรโตคอลการสื่อสารไม่สมบูรณ์ แต่ UART ดีในสิ่งที่พวกเขาทำ นี่คือข้อดีและข้อเสียที่จะช่วยในการตัดสินใจว่าจะตอบสนองความต้องการของโครงการของคุณหรือไม่:
+   <br/>
+   ข้อดี:<br/>
+   1.มีเพียงสายไฟสองสายเท่านั้น<br/>
+   2.ไม่มีสัญญาณการซิงค์<br/>
+   3.มีบิตพาริตีสำหรับการตรวจสอบข้อผิดพลาด<br/>
+   4.โครงสร้างของแพ็กเก็ตข้อมูลสามารถเปลี่ยนแปลงได้หากทั้งสองฝ่ายได้รับการกำหนดค่าไว้<br/>
+   5.ใช้เป็นเอกสารและใช้กันอย่างแพร่หลาย<br/>
+   ข้อเสีย:<br/>
+   1.ขนาดของกรอบข้อมูลมีค่าไม่เกิน 9 บิต<br/>
+   2.ไม่สนับสนุนระบบหลักหลายระบบหรือระบบหลักหลายระบบ<br/>
+   <br/>
+   นอกจากนี้อัตราการถ่ายโอนข้อมูลของอินเทอร์เฟซ UART Arduino แต่ละตัวควรอยู่ห่างกันไม่เกิน 10%<br/>
+  </h5>
+
+  <br/><br/><br/>
+  <h3>
+    I2C คืออะไร
+  </h3>
+ 
+  <h5>
+    I2C ย่อมาจาก Inter-Integrated Circuit คือรูปแบบการสื่อสารข้อมูลอย่างหนึ่งที่สร้างขึ้นมาเพื่อสื่อสารข้อมูลความเร็วต่ำ นิยมใช้กับอุปกรณ์จำพวกไมโครโปรเซสเซอร์ ไมโครคอนโทรเลอร์และอุปกรณ์ต่างๆที่เกี่ยวข้อง I2C ถูกคิดค้นขึ้นมาในปี ค.ศ. 1982 โดย Philip semiconductor (ปัจจุบันเปลี่ยนชื่อเป็น NXP semiconductor)  ข้อดีของการสื่อสารอนุกรมแบบ I2C คือ สามารถรับ-ส่งข้อมูลได้หลายอุปกรณ์ในบัสเดียวกัน ดังรูป การเชื่อมต่อระบบด้วยการสื่อสารอนุกรมแบบ I2C และใช้สายสัญญาณเพียง 2 เส้นในการรับส่ง-ข้อมูล ทำให้สามารถลดสายสัญญาณที่ใช้ในการเชื่อมต่ออุปกรณ์ลงมาก
+    <br/>
+    เมื่อเทียบกับโปรโตคอลอื่น ๆ I2C ฟังดูซับซ้อนและไม่ง่ายที่จะทำให้เกิดปัญหาเช่นการสูญหายของข้อมูลและไม่มีการตอบสนอง ข้อดีของมันสะท้อนให้เห็นใน:
+    ข้อดี:<br/>
+    1. ใช้เพียงสองสาย<br/>
+    2. สนับสนุนเซิร์ฟเวอร์หลักหลายตัวและเซิร์ฟเวอร์ทาสหลายตัว<br/>
+    3. บิต ACK / NACK ยืนยันว่าแต่ละเฟรมส่งสำเร็จ<br/>
+    4. ฮาร์ดแวร์ไม่ซับซ้อนเท่ากับ UART<br/>
+    5. โปรโตคอลที่รู้จักและใช้กันอย่างแพร่หลาย<br/>
+    ข้อเสีย:<br/>
+    1. อัตราการถ่ายโอนข้อมูลช้ากว่า SPI<br/>
+    2. ขนาดของ data frame จำกัด 8 บิต<br/>
+    3. ใช้ฮาร์ดแวร์ที่ซับซ้อนกว่า SPI<br/>
+
+  </h5>
+</div>
+  <script>
+    $(document).ready(function () {
+      $("#LedSwitch").on("change", function () {
+        var newState = $(this).val() === "1" ? "0" : "1"; // Toggle the state
+
+        // Update the input's value to the new state
+        $(this).val(newState);
+      });
+    });
+  </script>
+
+  <!-- Bootstrap JS and jQuery (optional) -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <!-- Add Bootstrap JavaScript (CDN or local) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+
+  <script>
+    function publishData() {
+      fetch("/publish")
+        .then((response) => response.text())
+        .then((data) => {
+          console.log(data);
+          document.getElementById("ledState").textContent = data;
+        })
+        .catch((error) => console.error("ข้อผิดพลาด:", error));
+    }
+  </script>
+</body>
